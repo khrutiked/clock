@@ -3,135 +3,446 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบนาฬิกาโรงเรียนสิรินธร จังหวัดสุรินทร์</title>
+    <title>ระบบนาฬิกาอัจฉริยะ - โรงเรียนสิรินธร จังหวัดสุรินทร์</title>
+    <!-- Tailwind CSS (v4) -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts: Prompt & Orbitron for sleek futuristic numbers -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;700;900&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         body {
-            font-family: 'Prompt', sans-serif;
+            font-family: 'Google Sans', sans-serif;
+        }
+        .clock-font {
+            font-family: 'Google Sans', 'Prompt', sans-serif;
+        }
+        /* Custom Glowing effects */
+        .glow-red {
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+        }
+        .box-glow {
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.15);
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col justify-between p-6 transition-all duration-500">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between transition-all duration-500 overflow-x-hidden selection:bg-red-600 selection:text-white">
 
-    <header class="w-full max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center border-b border-gray-800 pb-4 gap-4">
+    <!-- Background Elements / Gradients for modern UI depth -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(220,38,38,0.12),transparent_45%)] pointer-events-none"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(51,65,85,0.15),transparent_50%)] pointer-events-none"></div>
+
+    <!-- Header Section -->
+    <header class="relative z-10 w-full max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center border-b border-slate-800/80 gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center font-bold text-white shadow-lg shadow-red-600/50">
-                ส.ธ.
+            <!-- School Crest / Emblem placeholder -->
+            <div class="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-red-700 shadow-md shadow-red-600/30 overflow-hidden group">
+                <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                <span class="text-white font-black text-xl tracking-tighter">ส.ธ.</span>
             </div>
             <div>
-                <h1 class="text-xl font-bold tracking-wide text-white">โรงเรียนสิรินธร จังหวัดสุรินทร์</h1>
-                <p class="text-xs text-gray-400 font-light">ระบบนาฬิกาดิจิทัลส่วนกลาง (Digital Clock System)</p>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">โรงเรียนสิรินธร</h1>
+                    <span class="bg-red-500/10 text-red-500 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-red-500/20">จ.สุรินทร์</span>
+                </div>
+                <p class="text-xs text-slate-400 font-light">ระบบนาฬิกาและตารางกิจกรรมอัจฉริยะ (Smart School Clock)</p>
             </div>
         </div>
-        
-        <button id="fullscreenBtn" class="flex items-center gap-2 bg-white/10 hover:bg-red-600 hover:text-white text-gray-200 font-medium py-2 px-4 rounded-xl border border-white/20 transition-all duration-300 backdrop-blur-sm cursor-pointer shadow-sm">
-            <svg id="fullscreenIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4" />
-            </svg>
-            <span id="fullscreenText" class="text-sm">เต็มหน้าจอ</span>
-        </button>
+
+        <!-- Controls Block -->
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Audio Indicator & Test Button -->
+            <button id="chimeBtn" class="flex items-center gap-2 bg-slate-900/90 hover:bg-slate-800 text-slate-300 font-medium py-2 px-3 sm:px-4 rounded-xl border border-slate-800 transition-all duration-300 cursor-pointer text-sm shadow-sm">
+                <span id="chimeStatusIcon" class="text-red-500">🔊</span>
+                <span id="chimeStatusText">เปิดเสียงแจ้งเตือน</span>
+            </button>
+
+            <!-- Test Sound Button -->
+            <button id="testBellBtn" class="bg-slate-900/90 hover:bg-red-600 hover:text-white text-slate-300 font-medium p-2 rounded-xl border border-slate-800 transition-all duration-300 cursor-pointer text-sm" title="ทดสอบเสียงกริ่ง">
+                🛎️ ทดสอบกริ่ง
+            </button>
+
+            <!-- Fullscreen Toggle Button -->
+            <button id="fullscreenBtn" class="flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white font-semibold py-2 px-4 rounded-xl transition-all duration-300 shadow-lg shadow-red-600/25 cursor-pointer text-sm">
+                <svg id="fullscreenIcon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4" />
+                </svg>
+                <span id="fullscreenText">เต็มหน้าจอ</span>
+            </button>
+        </div>
     </header>
 
-    <main class="flex-grow flex flex-col justify-center items-center my-8">
-        <div class="text-center w-full max-w-4xl px-4">
-            <div id="dateDisplay" class="text-lg md:text-2xl font-medium tracking-widest text-red-500 uppercase mb-2 drop-shadow-[0_2px_8px_rgba(239,68,68,0.3)]">
-                วันพฤหัสบดีที่ 1 มกราคม 2570
+    <!-- Main Clock and Dashboard Area -->
+    <main class="relative z-10 flex-grow flex flex-col justify-center items-center py-6 px-4 max-w-7xl mx-auto w-full">
+        
+        <!-- Large Clock Display Frame -->
+        <div class="w-full text-center space-y-6">
+            <!-- Date Display Card with Thai Buddhist Calendar -->
+            <div class="inline-flex items-center gap-3 px-6 py-2.5 bg-slate-900/60 border border-slate-800/60 rounded-full backdrop-blur-md shadow-sm">
+                <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
+                <div id="dateDisplay" class="text-sm sm:text-lg font-medium text-slate-200 tracking-wide">
+                    กำลังโหลดข้อมูลวันที่...
+                </div>
             </div>
-            
-            <div class="relative bg-black/40 border border-gray-800/80 rounded-3xl p-8 md:p-16 shadow-2xl backdrop-blur-md">
-                <div class="absolute -top-px left-10 right-10 h-px bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
-                
-                <div id="clockDisplay" class="font-bold text-6xl sm:text-7xl md:text-9xl lg:text-10xl tracking-tight text-white select-none variant-numeric tabular-nums">
-                    00:00:00
+
+            <!-- Central Display: Massive Neon Digital Clock -->
+            <div class="relative bg-black/60 border border-slate-800/80 rounded-[2.5rem] p-6 sm:p-12 lg:p-16 box-glow max-w-5xl mx-auto transition-all duration-500 backdrop-blur-xl">
+                <!-- Glowing red line accents -->
+                <div class="absolute -top-px left-12 right-12 h-px bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
+                <div class="absolute -bottom-px left-12 right-12 h-px bg-gradient-to-r from-transparent via-red-950 to-transparent"></div>
+
+                <!-- Live Clock Engine Display -->
+                <div class="flex flex-col items-center justify-center">
+                    <div id="clockDisplay" class="clock-font font-bold text-6xl sm:text-8xl md:text-9xl lg:text-10xl text-white tracking-widest leading-none select-none select-none glow-red tabular-nums py-2">
+                        00:00:00
+                    </div>
+                </div>
+
+                <!-- Secondary Sub-Clock Info -->
+                <div class="mt-4 flex flex-wrap justify-center items-center gap-4 text-xs sm:text-sm text-slate-400 font-light border-t border-slate-900 pt-4">
+                    <div class="flex items-center gap-1.5">
+                        <span class="inline-block w-2 h-2 rounded-full bg-red-500"></span>
+                        <span>เวลาประเทศไทย (ICT)</span>
+                    </div>
+                    <span class="text-slate-700">|</span>
+                    <div class="flex items-center gap-1.5">
+                        <span>โซนเวลา:</span>
+                        <span class="font-medium text-slate-300">Asia/Bangkok</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- School Scheduler Module -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto mt-6 text-left">
+                <!-- Current Activity Card -->
+                <div class="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-4 backdrop-blur-sm">
+                    <div class="text-xs font-semibold text-red-500 uppercase tracking-wider mb-1">กิจกรรมขณะนี้</div>
+                    <div id="currentPeriodTitle" class="text-lg font-bold text-white truncate">กิจกรรมหน้าเสาธง</div>
+                    <div id="currentPeriodTime" class="text-xs text-slate-400 mt-1">เวลา 08:00 - 08:30 น.</div>
+                </div>
+
+                <!-- Next Activity Card -->
+                <div class="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-4 backdrop-blur-sm">
+                    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">กิจกรรมถัดไป</div>
+                    <div id="nextPeriodTitle" class="text-lg font-bold text-slate-300 truncate">คาบเรียนที่ 1</div>
+                    <div id="nextPeriodTime" class="text-xs text-slate-500 mt-1">เวลา 08:30 - 09:20 น.</div>
+                </div>
+
+                <!-- Countdown & Action Progress Card -->
+                <div class="bg-slate-900/50 border border-slate-800/50 rounded-2xl p-4 backdrop-blur-sm flex flex-col justify-between">
+                    <div>
+                        <div class="text-xs font-semibold text-red-500 uppercase tracking-wider mb-1">เวลาที่เหลือในกิจกรรมนี้</div>
+                        <div id="periodCountdown" class="text-2xl font-bold text-white clock-font">00:00</div>
+                    </div>
+                    <!-- Mini progress bar -->
+                    <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden mt-2">
+                        <div id="periodProgressBar" class="bg-red-600 h-full transition-all duration-1000" style="width: 0%"></div>
+                    </div>
                 </div>
             </div>
         </div>
+
     </main>
 
-    <footer class="w-full max-w-5xl mx-auto border-t border-gray-800 pt-4 text-center md:text-right">
-        <p class="text-xs text-gray-500 font-light">
-            Designed & Developed by <span class="text-red-500 font-semibold">ครูติ๊ก (Full Stack & UX/UI Expert)</span>
-        </p>
+    <!-- News Ticket & Footer Section -->
+    <footer class="relative z-10 w-full mt-auto">
+        <!-- School News/Announcement Bar (Clean UX Highlight) -->
+        <div class="bg-red-950/40 border-y border-red-900/30 py-3 backdrop-blur-md overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 flex items-center gap-4">
+                <span class="flex-shrink-0 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wider shadow-sm animate-pulse">ประกาศ</span>
+                <div class="relative w-full overflow-hidden h-5">
+                    <div class="absolute flex whitespace-nowrap gap-12 animate-[marquee_25s_linear_infinite] text-sm text-slate-200">
+                        <span>ยินดีต้อนรับสู่ระบบนาฬิกากลางอัจฉริยะ โรงเรียนสิรินธร จังหวัดสุรินทร์</span>
+                        <span>•</span>
+                        <span>กรุณาตรวจสอบตารางเวลาและการเข้าเรียนตามเสียงกริ่งสัญญาณส่วนกลาง</span>
+                        <span>•</span>
+                        <span>พัฒนาและดูแลโดยผู้เชี่ยวชาญ Full Stack และการออกแบบ UX/UI ครูติ๊ก</span>
+                        <span>•</span>
+                        <span>สิรินธร แหล่งเรียนรู้ชั้นเลิศ มุ่งสร้างคนดี มีวินัย และปัญญาเลิศศรัทธาชุมชน</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Credits -->
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 font-light gap-2">
+            <p>© 2026 โรงเรียนสิรินธร จังหวัดสุรินทร์. สงวนลิขสิทธิ์ทั้งหมด.</p>
+            <p>
+                ออกแบบระบบอย่างประณีตโดย <span class="text-red-500 font-semibold hover:underline cursor-help" title="ผู้เชี่ยวชาญ Full Stack & UX/UI">ครูติ๊ก</span>
+            </p>
+        </div>
     </footer>
 
+    <!-- CSS Keyframe for continuous marquee speed -->
+    <style>
+        @keyframes marquee {
+            0% { transform: translateX(50%); }
+            100% { transform: translateX(-100%); }
+        }
+    </style>
+
+    <!-- Modal Notification System (Custom No-Alert Design) -->
+    <div id="customModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl transform scale-95 transition-transform duration-300">
+            <div class="text-red-500 text-4xl mb-4 text-center">🔔</div>
+            <h3 id="modalTitle" class="text-lg font-bold text-white text-center mb-2"></h3>
+            <p id="modalContent" class="text-sm text-slate-400 text-center mb-6 leading-relaxed"></p>
+            <button id="modalCloseBtn" class="w-full bg-red-600 hover:bg-red-500 text-white font-semibold py-2.5 px-4 rounded-xl transition-all cursor-pointer">ตกลง</button>
+        </div>
+    </div>
+
+    <!-- Scripting Area -->
     <script>
-        // 1. ฟังก์ชันอัปเดตนาฬิกาและวันที่
-        function updateClock() {
-            const now = new Date();
+        // 1. School Schedule Period Matrix (Sirindhorn Standard School Day)
+        const schoolSchedule = [
+            { id: 0, title: "เตรียมตัวและกิจกรรมหน้าเสาธง", start: "08:00", end: "08:30" },
+            { id: 1, title: "คาบเรียนที่ 1", start: "08:30", end: "09:20" },
+            { id: 2, title: "คาบเรียนที่ 2", start: "09:20", end: "10:10" },
+            { id: 3, title: "คาบเรียนที่ 3", start: "10:10", end: "11:00" },
+            { id: 4, title: "คาบเรียนที่ 4", start: "11:00", end: "11:50" },
+            { id: 5, title: "พักรับประทานอาหารกลางวัน", start: "11:50", end: "12:50" },
+            { id: 6, title: "คาบเรียนที่ 5", start: "12:50", end: "13:40" },
+            { id: 7, title: "คาบเรียนที่ 6", start: "13:40", end: "14:30" },
+            { id: 8, title: "คาบเรียนที่ 7", start: "14:30", end: "15:20" },
+            { id: 9, title: "คาบเรียนที่ 8", start: "15:20", end: "16:10" },
+            { id: 10, title: "กิจกรรมโฮมรูมและสวดมนต์เย็น", start: "16:10", end: "16:30" },
+            { id: 11, title: "นอกเวลาเรียน / อิสระศึกษา", start: "16:30", end: "08:00" } // Overnight fallback
+        ];
+
+        // 2. Chime Engine Configuration (Web Audio API Synthesizer)
+        let soundEnabled = true;
+        let lastChimedPeriod = null;
+
+        // Custom Notification Modal Trigger
+        function showNotification(title, message) {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalContent').textContent = message;
             
-            // ตั้งค่ารูปแบบเวลา (HH:MM:SS)
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            
-            document.getElementById('clockDisplay').textContent = `${hours}:${minutes}:${seconds}`;
-            
-            // ตั้งค่ารูปแบบวันที่ภาษาไทย
-            const days = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
-            const months = [
-                'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 
-                'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-            ];
-            
-            const dayName = days[now.getDay()];
-            const dateNum = now.getDate();
-            const monthName = months[now.getMonth()];
-            const thaiYear = now.getFullYear() + 543;
-            
-            document.getElementById('dateDisplay').textContent = `${dayName}ที่ ${dateNum} ${monthName} ${thaiYear}`;
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.firstElementChild.classList.remove('scale-95');
+            modal.firstElementChild.classList.add('scale-100');
         }
 
-        // อัปเดตเวลาทุกๆ 1 วินาที
-        setInterval(updateClock, 1000);
-        updateClock(); // เรียกใช้งานทันทีเมื่อโหลดหน้าแรก
+        document.getElementById('modalCloseBtn').addEventListener('click', () => {
+            const modal = document.getElementById('customModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.firstElementChild.classList.remove('scale-100');
+            modal.firstElementChild.classList.add('scale-95');
+        });
 
-        // 2. ฟังก์ชันระบบ Full Screen
+        // Synthetic Chime Sound generator (Double Tone Pleasant Electronic Bell)
+        function playSchoolChime() {
+            if (!soundEnabled) return;
+
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                const audioCtx = new AudioContext();
+
+                // Generate First Harmonic High Frequency
+                function playTone(freq, startTime, duration) {
+                    const osc = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+
+                    osc.type = 'triangle'; // Smoother tone
+                    osc.frequency.setValueAtTime(freq, startTime);
+                    
+                    // Pleasant soft attack and slow decay envelope
+                    gainNode.gain.setValueAtTime(0, startTime);
+                    gainNode.gain.linearRampToValueAtTime(0.4, startTime + 0.1);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+                    osc.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+
+                    osc.start(startTime);
+                    osc.stop(startTime + duration);
+                }
+
+                // Play classic "Ding-Dong" or Quadruple Chime
+                const now = audioCtx.currentTime;
+                playTone(554.37, now, 1.2);        // C#5
+                playTone(659.25, now + 0.3, 1.2);  // E5
+                playTone(739.99, now + 0.6, 1.2);  // F#5
+                playTone(880.00, now + 0.9, 1.8);  // A5
+            } catch (e) {
+                console.error("Audio Context is not yet initialized or allowed by browser policy.", e);
+            }
+        }
+
+        // Toggle Audio Indicator
+        const chimeBtn = document.getElementById('chimeBtn');
+        const chimeStatusIcon = document.getElementById('chimeStatusIcon');
+        const chimeStatusText = document.getElementById('chimeStatusText');
+
+        chimeBtn.addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            if (soundEnabled) {
+                chimeStatusIcon.textContent = "🔊";
+                chimeStatusText.textContent = "เปิดเสียงแจ้งเตือน";
+                chimeBtn.classList.replace('border-red-900/40', 'border-slate-800');
+                playSchoolChime(); // Play test immediately so user knows it's active
+            } else {
+                chimeStatusIcon.textContent = "🔇";
+                chimeStatusText.textContent = "ปิดเสียงแจ้งเตือน";
+                chimeBtn.classList.add('border-red-900/40');
+            }
+        });
+
+        // Test chime button
+        document.getElementById('testBellBtn').addEventListener('click', () => {
+            if (!soundEnabled) {
+                showNotification("กรุณาเปิดเสียงก่อน", "เปิดการใช้งานเสียงด้วยปุ่มหลัก จากนั้นลองทดสอบอีกครั้งครับ");
+                return;
+            }
+            playSchoolChime();
+        });
+
+        // Helper: Convert time string "HH:MM" to seconds in the day
+        function timeToSeconds(timeStr) {
+            const [hrs, mins] = timeStr.split(':').map(Number);
+            return hrs * 3600 + mins * 60;
+        }
+
+        // 3. Main System Clock update and Period calculations
+        function systemTick() {
+            const now = new Date();
+            
+            // Format time parameters
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            
+            // Render Live Main Digital Time
+            document.getElementById('clockDisplay').textContent = `${hh}:${mm}:${ss}`;
+
+            // Format Thai Date with Buddhist Era year (BE)
+            const daysTh = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
+            const monthsTh = [
+                'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+            ];
+            const displayDate = `${daysTh[now.getDay()]}ที่ ${now.getDate()} ${monthsTh[now.getMonth()]} พ.ศ. ${now.getFullYear() + 543}`;
+            document.getElementById('dateDisplay').textContent = displayDate;
+
+            // Compute current school schedule status
+            const currentSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            let currentActivity = null;
+            let nextActivity = null;
+
+            // Iterate through schedules to detect exact window
+            for (let i = 0; i < schoolSchedule.length; i++) {
+                const sched = schoolSchedule[i];
+                let startSec = timeToSeconds(sched.start);
+                let endSec = timeToSeconds(sched.end);
+
+                // Handle overnight period transition correctly
+                if (startSec > endSec) {
+                    if (currentSeconds >= startSec || currentSeconds < endSec) {
+                        currentActivity = sched;
+                        nextActivity = schoolSchedule[(i + 1) % schoolSchedule.length];
+                        break;
+                    }
+                } else {
+                    if (currentSeconds >= startSec && currentSeconds < endSec) {
+                        currentActivity = sched;
+                        nextActivity = schoolSchedule[(i + 1) % schoolSchedule.length];
+                        break;
+                    }
+                }
+            }
+
+            // Fallback default structure
+            if (!currentActivity) {
+                currentActivity = schoolSchedule[11];
+                nextActivity = schoolSchedule[0];
+            }
+
+            // Display schedule detail updates
+            document.getElementById('currentPeriodTitle').textContent = currentActivity.title;
+            document.getElementById('currentPeriodTime').textContent = `เวลา ${currentActivity.start} - ${currentActivity.end} น.`;
+
+            document.getElementById('nextPeriodTitle').textContent = nextActivity.title;
+            document.getElementById('nextPeriodTime').textContent = `เวลา ${nextActivity.start} - ${nextActivity.end} น.`;
+
+            // Calculate Period duration countdown values
+            const curStart = timeToSeconds(currentActivity.start);
+            let curEnd = timeToSeconds(currentActivity.end);
+            
+            // Adjust calculations if the interval spans midnight
+            let totalPeriodSeconds = curEnd - curStart;
+            let remainingSeconds = curEnd - currentSeconds;
+
+            if (curStart > curEnd) {
+                if (currentSeconds >= curStart) {
+                    totalPeriodSeconds = (24 * 3600 - curStart) + curEnd;
+                    remainingSeconds = (24 * 3600 - currentSeconds) + curEnd;
+                } else {
+                    totalPeriodSeconds = (24 * 3600 - curStart) + curEnd;
+                    remainingSeconds = curEnd - currentSeconds;
+                }
+            }
+
+            // Format timer display
+            if (remainingSeconds >= 0) {
+                const remMins = Math.floor(remainingSeconds / 60);
+                const remSecs = remainingSeconds % 60;
+                document.getElementById('periodCountdown').textContent = `${String(remMins).padStart(2, '0')}:${String(remSecs).padStart(2, '0')}`;
+
+                // Update precise visual progress tracking bar
+                const percentDone = ((totalPeriodSeconds - remainingSeconds) / totalPeriodSeconds) * 100;
+                document.getElementById('periodProgressBar').style.width = `${percentDone}%`;
+            }
+
+            // Sound Alarm triggers at the exact boundary of a new period change
+            if (lastChimedPeriod !== currentActivity.id) {
+                if (lastChimedPeriod !== null) {
+                    playSchoolChime();
+                    showNotification("🔔 สัญญาณกิจกรรมใหม่", `โรงเรียนสิรินธรปรับระดับกิจกรรมเข้าสู่: ${currentActivity.title}`);
+                }
+                lastChimedPeriod = currentActivity.id;
+            }
+        }
+
+        // Initialize clock runtime
+        setInterval(systemTick, 1000);
+        systemTick();
+
+        // 4. Custom Responsive Full-Screen logic wrapper
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         const fullscreenText = document.getElementById('fullscreenText');
         const fullscreenIcon = document.getElementById('fullscreenIcon');
 
-        fullscreenBtn.addEventListener('click', () => {
+        function toggleFullscreen() {
             if (!document.fullscreenElement) {
-                // เปิดโหมด Full Screen
-                document.documentElement.requestFullscreen().then(() => {
-                    updateFullscreenUI(true);
-                }).catch(err => {
-                    console.error(`Error attempting to enable full-screen mode: ${err.message}`);
-                });
+                document.documentElement.requestFullscreen()
+                    .then(() => updateBtnState(true))
+                    .catch(err => {
+                        console.warn("Fullscreen request declined or blocked by sandboxed environments.", err);
+                        showNotification("แจ้งเตือนการแสดงผล", "ไม่สามารถเปิดเต็มหน้าจอผ่านสคริปต์ได้โดยอัตโนมัติ เนื่องจากข้อกำหนดความปลอดภัยของเว็บเบราว์เซอร์ กรุณากด F11 บนแป้นพิมพ์เพื่อแสดงผลเต็มหน้าจอได้อย่างสมบูรณ์แบบครับ");
+                    });
             } else {
-                // ออกจากโหมด Full Screen
-                document.exitFullscreen().then(() => {
-                    updateFullscreenUI(false);
-                });
-            }
-        });
-
-        // ดักจับการเปลี่ยนสถานะกรณีผู้ใช้กด Esc เอง
-        document.addEventListener('fullscreenchange', () => {
-            if (document.fullscreenElement) {
-                updateFullscreenUI(true);
-            } else {
-                updateFullscreenUI(false);
-            }
-        });
-
-        // ฟังก์ชันปรับเปลี่ยน UI ของปุ่มตามสถานะหน้าจอ
-        function updateFullscreenUI(isFull) {
-            if (isFull) {
-                fullscreenText.textContent = 'ออกจากเต็มหน้าจอ';
-                // เปลี่ยนเป็นไอคอน Shrink
-                fullscreenIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l5 5m0 0V4m0 5H4m16-5l-5 5m0 0v-5m0 5h5M4 20l5-5m0 0v5m0-5H4m16 0l-5-5m0 0v5m0-5h5" />';
-                fullscreenBtn.classList.replace('bg-white/10', 'bg-red-600');
-            } else {
-                fullscreenText.textContent = 'เต็มหน้าจอ';
-                // เปลี่ยนเป็นไอคอน Expand
-                fullscreenIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4" />';
-                fullscreenBtn.classList.replace('bg-red-600', 'bg-white/10');
+                document.exitFullscreen().then(() => updateBtnState(false));
             }
         }
+
+        function updateBtnState(isFull) {
+            if (isFull) {
+                fullscreenText.textContent = "ออกจากเต็มจอ";
+                fullscreenIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l5 5m0 0V4m0 5H4m16-5l-5 5m0 0v-5m0 5h5M4 20l5-5m0 0v5m0-5H4m16 0l-5-5m0 0v5m0-5h5" />';
+            } else {
+                fullscreenText.textContent = "เต็มหน้าจอ";
+                fullscreenIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4" />';
+            }
+        }
+
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+        // Listen for internal layout changes of fullscreen trigger elements
+        document.addEventListener('fullscreenchange', () => {
+            updateBtnState(!!document.fullscreenElement);
+        });
     </script>
 </body>
 </html>
