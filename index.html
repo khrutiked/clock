@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบจับเวลาการสอบ - Exam Timer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+
+    <style>
+        body {
+            background-color: #ffffff;
+            color: rgb(0, 0, 0);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 90vh;
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Google Sans', sans-serif;
+        }
+
+        /* ปรับแต่งตัวเลขเวลา */
+        .timer-display {
+            font-size: 24vw;
+            /* คงขนาดใหญ่ไว้ตามที่ครูต้องการ */
+            font-weight: 800;
+            line-height: 1;
+            margin: 10px 0;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .school-text {
+            font-size: 3.5rem;
+            color: #be0205;
+            font-weight: 800;
+        }
+
+        .status-text {
+            font-size: 2.5rem;
+            color: #be0205;
+            font-weight: 700;
+        }
+
+        /* สีสถานะต่างๆ */
+        .critical {
+            color: #ffc107;
+            text-shadow: 0 0 30px #ffc107;
+            animation: blink 1s infinite;
+        }
+
+        .expired {
+            color: #dc3545;
+            text-shadow: 0 0 30px #dc3545;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        /* --- ส่วนของ Marquee (ข้อความวิ่ง) --- */
+        .marquee-container {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #000000;
+            color: #0dcaf0;
+            padding: 15px 0;
+            font-size: 1.8rem;
+            white-space: nowrap;
+            overflow: hidden;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .marquee-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-text 25s linear infinite;
+        }
+
+        @keyframes scroll-text {
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="text-center container-fluid mb-3">
+        <div id="schoolName" class="school-text">โรงเรียนสิรินธร จังหวัดสุรินทร์</div>
+        <div id="statusText" class="status-text">พร้อมเริ่มการสอบ</div>
+
+        <div id="timerDisplay" class="timer-display">00:00:00</div>
+
+        <div class="mt-4 d-flex justify-content-center align-items-center gap-3" id="controls">
+
+            <div class="d-flex flex-column align-items-center justify-content-center px-3 py-1 bg-dark rounded border border-secondary"
+                style="font-family: 'Google Sans', sans-serif; font-weight: bold; font-size: 1.4rem;">
+                <span class="text-white" style="font-size: 0.6rem; line-height: 1;">เวลาปัจจุบัน</span>
+                <span id="realTimeDisplay" class="text-info fw-bold"
+                    style="font-size: 1.4rem; line-height: 1.3; font-variant-numeric: tabular-nums;">--:--:--</span>
+            </div>
+
+            <div class="input-group w-auto">
+                <span class="input-group-text bg-secondary text-white border-0"
+                    style="font-family: 'Google Sans', sans-serif; font-weight: bold; font-size: 1.5rem;">เวลาสอบ
+                    (นาที)</span>
+                <input type="number" id="inputMinutes" class="form-control text-center"
+                    style="max-width: 100px; font-family: 'Google Sans', sans-serif; font-weight: bold; font-size: 1.5rem;"
+                    value="60">
+            </div>
+
+            <button id="btnStart" onclick="startTimer()" class="btn btn-success btn-lg shadow"
+                style="font-weight: 700; white-space: nowrap;">เริ่มจับเวลา</button>
+
+            <button onclick="resetTimer()" class="btn btn-outline-secondary btn-lg"
+                style="white-space: nowrap;">รีเซ็ต</button>
+
+            <button onclick="toggleFullScreen()" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-arrows-fullscreen"></i> เต็มจอ
+            </button>
+
+        </div>
+    </div>
+
+    <div class="marquee-container">
+        <div class="marquee-text" id="marqueeText">
+            ระเบียบการสอบ: 1. ห้ามนำเครื่องมือสื่อสารทุกชนิดเข้าห้องสอบ 2. วางบัตรนักเรียนไว้มุมโต๊ะขวาบน 3.
+            หากทุจริตปรับตกทุกกรณี
+        </div>
+    </div>
+
+    <script>
+        let countdownInterval;
+        let endTime;
+        const display = document.getElementById('timerDisplay');
+        const statusText = document.getElementById('statusText');
+        const marqueeDiv = document.querySelector('.marquee-container');
+
+        const soundWarning = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+        const soundEnd = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
+
+        let isWarningPlayed = false;
+
+        // --- ฟังก์ชันนาฬิกาเวลาปัจจุบัน (เพิ่มใหม่) ---
+        function updateRealTime() {
+            const now = new Date();
+            // จัดรูปแบบเวลาเป็นภาษาไทย 24 ชั่วโมง (HH:mm:ss)
+            const timeString = now.toLocaleTimeString('th-TH', { hour12: false });
+            document.getElementById('realTimeDisplay').innerText = timeString;
+        }
+
+        // สั่งให้รันฟังก์ชัน updateRealTime ทุกๆ 1 วินาที
+        setInterval(updateRealTime, 1000);
+        updateRealTime(); // รันครั้งแรกทันทีไม่ต้องรอ 1 วิ
+
+        function updateTimer() {
+            const now = Date.now();
+            const distance = endTime - now;
+
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                display.innerText = "00:00:00";
+                display.classList.add('expired');
+                statusText.innerText = "หมดเวลาสอบ - วางดินสอ";
+                statusText.style.color = "#dc3545";
+
+                marqueeDiv.style.background = "#dc3545";
+                document.getElementById('marqueeText').innerText = "!!! หมดเวลาสอบ กรุณาวางดินสอ นำข้อสอบและกระดาษคำตอบมาให้ครู !!!";
+
+                soundEnd.play();
+                return;
+            }
+
+            const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((distance % (1000 * 60)) / 1000);
+
+            display.innerText =
+                (h > 0 ? h + ":" : "") +
+                (m < 10 ? "0" + m : m) + ":" +
+                (s < 10 ? "0" + s : s);
+
+            if (distance < 5 * 60 * 1000) {
+                display.classList.add('critical');
+                statusText.innerText = "เหลือเวลา 5 นาทีสุดท้าย";
+                statusText.style.color = "#ffc107";
+
+                if (!isWarningPlayed) {
+                    soundWarning.play();
+                    isWarningPlayed = true;
+                }
+            }
+        }
+
+        function startTimer() {
+            const minutesInput = document.getElementById('inputMinutes');
+            const btnStart = document.getElementById('btnStart');
+            const minutes = parseInt(minutesInput.value);
+
+            if (isNaN(minutes)) return;
+
+            soundWarning.load();
+            soundEnd.load();
+
+            const now = Date.now();
+            endTime = now + (minutes * 60 * 1000);
+
+            minutesInput.disabled = true;
+            btnStart.disabled = true;
+            btnStart.innerText = "กำลังจับเวลา...";
+            btnStart.classList.remove('btn-success');
+            btnStart.classList.add('btn-secondary');
+
+            statusText.innerText = "กำลังดำเนินการสอบ";
+            marqueeDiv.style.background = "#0d6efd";
+            marqueeDiv.querySelector('.marquee-text').style.color = "white";
+
+            isWarningPlayed = false;
+
+            updateTimer();
+            countdownInterval = setInterval(updateTimer, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(countdownInterval);
+            display.innerText = "00:00:00";
+            display.classList.remove('critical', 'expired');
+
+            statusText.innerText = "พร้อมเริ่มการสอบ";
+            statusText.style.color = "#adb5bd";
+
+            const minutesInput = document.getElementById('inputMinutes');
+            const btnStart = document.getElementById('btnStart');
+
+            minutesInput.disabled = false;
+            btnStart.disabled = false;
+            btnStart.innerText = "เริ่มจับเวลา";
+            btnStart.classList.add('btn-success');
+            btnStart.classList.remove('btn-secondary');
+
+            marqueeDiv.style.background = "#000000";
+            marqueeDiv.querySelector('.marquee-text').style.color = "#0dcaf0";
+            document.getElementById('marqueeText').innerText = "ระเบียบการสอบ: 1. ห้ามนำเครื่องมือสื่อสารทุกชนิดเข้าห้องสอบ 2. วางบัตรนักเรียนไว้มุมโต๊ะขวาบน 3. หากทุจริตปรับตกทุกกรณี";
+
+            soundEnd.pause();
+            soundEnd.currentTime = 0;
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
