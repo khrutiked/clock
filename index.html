@@ -49,6 +49,54 @@
         .glow-card {
             box-shadow: 0 10px 30px -10px rgba(225, 29, 72, 0.2);
         }
+
+        /* Fullscreen Custom Layout for Classroom Smartboards */
+        :fullscreen header, :fullscreen footer {
+            display: none !important;
+        }
+        :fullscreen main {
+            padding: 0 !important;
+            max-width: 100vw !important;
+            height: 100vh !important;
+            justify-content: center !important;
+            background-color: #0f172a !important; /* Force sleek dark bg in fullscreen */
+        }
+        :fullscreen #view-clock {
+            max-width: 100vw !important;
+            height: 100vh !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            margin: 0 !important;
+            padding: 2rem !important;
+        }
+        :fullscreen #view-clock .bg-white {
+            background-color: #1e293b !important; /* Dark card in fullscreen */
+            color: #f8fafc !important;
+            border: none !important;
+            box-shadow: none !important;
+            height: 90vh !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+        }
+        :fullscreen #view-clock .text-slate-900 {
+            color: #ffffff !important;
+        }
+        :fullscreen #view-clock .text-slate-800 {
+            color: #e2e8f0 !important;
+        }
+        :fullscreen #clock-display-date {
+            font-size: 2.5rem !important;
+            line-height: 1.2 !important;
+            color: #cbd5e1 !important;
+        }
+        :fullscreen #view-clock .text-6xl {
+            font-size: 11vw !important;
+            line-height: 1 !important;
+            margin-top: 2.5rem !important;
+            margin-bottom: 2.5rem !important;
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col transition-colors duration-300" id="body-layout">
@@ -90,9 +138,6 @@
         <!-- ============================================== -->
         <section id="view-welcome" class="w-full max-w-4xl text-center fade-in space-y-8">
             <div class="space-y-4">
-                <div class="inline-flex p-3 bg-red-50 text-sirindhorn-red rounded-3xl mb-2 animate-bounce">
-                    <i class="fa-solid fa-circle-check text-2xl"></i>
-                </div>
                 <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
                     ระบบนาฬิกาและระบบจับเวลาอัจฉริยะ
                 </h1>
@@ -147,11 +192,18 @@
         <!-- VIEW 2: DIGITAL CLOCK SCREEN (โหมดแสดงเวลาปกติ) -->
         <!-- ============================================== -->
         <section id="view-clock" class="hidden w-full max-w-5xl fade-in space-y-6">
-            <!-- Nav breadcrumb & Back button -->
+            <!-- Nav breadcrumb & Back button & Fullscreen button -->
             <div class="flex items-center justify-between">
-                <button onclick="switchView('welcome')" class="inline-flex items-center px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-2xl text-slate-700 text-sm font-medium transition-all shadow-sm">
-                    <i class="fa-solid fa-chevron-left mr-2"></i> กลับหน้าหลัก
-                </button>
+                <div class="flex items-center space-x-2">
+                    <button onclick="switchView('welcome')" class="inline-flex items-center px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-2xl text-slate-700 text-sm font-medium transition-all shadow-sm">
+                        <i class="fa-solid fa-chevron-left mr-2"></i> กลับหน้าหลัก
+                    </button>
+                    <!-- Fullscreen Toggle Button -->
+                    <button onclick="toggleFullscreen()" class="inline-flex items-center px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-2xl text-slate-700 text-sm font-medium transition-all shadow-sm">
+                        <i class="fa-solid fa-expand mr-2 text-sirindhorn-red" id="fullscreen-icon"></i> 
+                        <span id="fullscreen-text">แสดงเต็มหน้าจอ</span>
+                    </button>
+                </div>
                 <div class="text-sm font-medium text-sirindhorn-greyMedium">
                     <span class="text-sirindhorn-red">●</span> หน้าจอดิจิทัลหลัก
                 </div>
@@ -474,6 +526,64 @@
             // Dispatch dynamic UI adjust triggers
             if (viewName === 'clock') {
                 updateLiveClock(true); // Immediate update for responsive layout
+            }
+        }
+
+        // --- 1.2 Fullscreen Controller for Smartboard ---
+        function toggleFullscreen() {
+            const elem = document.documentElement;
+            const icon = document.getElementById('fullscreen-icon');
+            const text = document.getElementById('fullscreen-text');
+
+            if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+                // Request Fullscreen
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen();
+                } else if (elem.webkitRequestFullscreen) { /* Safari */
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) { /* IE11 */
+                    elem.msRequestFullscreen();
+                }
+                
+                if (icon && text) {
+                    icon.className = "fa-solid fa-compress mr-2 text-sirindhorn-red";
+                    text.innerText = "ย่อหน้าจอ";
+                }
+                showToast('เข้าสู่โหมดเต็มหน้าจอ', 'ขยายหน้าจอนาฬิกาเพื่อแสดงผลเต็มระบบห้องเรียนสิรินธร');
+            } else {
+                // Exit Fullscreen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                
+                if (icon && text) {
+                    icon.className = "fa-solid fa-expand mr-2 text-sirindhorn-red";
+                    text.innerText = "แสดงเต็มหน้าจอ";
+                }
+                showToast('ออกจากโหมดเต็มหน้าจอ', 'กลับคืนสู่ขนาดหน้าจอเบราว์เซอร์ปกติ');
+            }
+        }
+
+        // Listen for system/keyboard fullscreen state changes (e.g. Esc key pressed)
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+        function handleFullscreenChange() {
+            const icon = document.getElementById('fullscreen-icon');
+            const text = document.getElementById('fullscreen-text');
+            if (icon && text) {
+                if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+                    icon.className = "fa-solid fa-compress mr-2 text-sirindhorn-red";
+                    text.innerText = "ย่อหน้าจอ";
+                } else {
+                    icon.className = "fa-solid fa-expand mr-2 text-sirindhorn-red";
+                    text.innerText = "แสดงเต็มหน้าจอ";
+                }
             }
         }
 
