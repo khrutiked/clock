@@ -3,224 +3,983 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIRINDHORN CLOCK SYSTEM</title>
+    <title>ระบบนาฬิกาอัจฉริยะ - โรงเรียนสิรินธร จังหวัดสุรินทร์</title>
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Google Fonts: Inter & Sriracha (สำหรับความโมเดิร์นและเข้ากับชื่อโรงเรียน) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Kanit for modern Thai tech look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;700;900&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for beautiful icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Google Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        sirindhorn: {
+                            red: '#E11D48', // Bright modern red
+                            darkRed: '#9F1239',
+                            dark: '#0F172A',
+                            greyLight: '#F1F5F9',
+                            greyMedium: '#64748B',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body { font-family: 'Google Sans', 'Noto Sans Thai', sans-serif; }
+        /* Custom Smooth Transitions */
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Glow Effects */
+        .glow-red {
+            text-shadow: 0 0 20px rgba(225, 29, 72, 0.5);
+        }
+        .glow-card {
+            box-shadow: 0 10px 30px -10px rgba(225, 29, 72, 0.2);
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col justify-between transition-colors duration-300">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col transition-colors duration-300" id="body-layout">
 
-    <!-- HEADER -->
-    <header class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shadow-sm">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-md shadow-red-200">ส.ธ.</div>
-            <div>
-                <h1 class="text-xs text-gray-500 font-semibold tracking-wider">โรงเรียนสิรินธร จังหวัดสุรินทร์</h1>
-                <p class="text-sm font-bold text-gray-800">SIRINDHORN CLOCK SYSTEM</p>
+    <!-- Header / Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 transition-colors duration-300" id="nav-header">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Logo & School Name -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('welcome')">
+                <div class="w-10 h-10 rounded-full bg-sirindhorn-red flex items-center justify-center text-white shadow-lg shadow-red-500/30">
+                    <i class="fa-solid fa-school text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-bold text-lg tracking-tight text-slate-900 block md:inline" id="header-title">โรงเรียนสิรินธร</span>
+                    <span class="text-xs md:text-sm text-sirindhorn-greyMedium block md:inline md:ml-2">จังหวัดสุรินทร์</span>
+                </div>
+            </div>
+
+            <!-- Header Quick Stats / Actions -->
+            <div class="flex items-center space-x-4">
+                <div class="hidden md:flex flex-col text-right">
+                    <span class="text-xs text-sirindhorn-greyMedium">เวลาส่วนกลาง</span>
+                    <span class="text-sm font-semibold text-slate-700" id="header-live-time">00:00:00 น.</span>
+                </div>
+                
+                <!-- Dark Mode Toggle button for UX flexibility -->
+                <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all" title="สลับโหมด มืด/สว่าง">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                </button>
             </div>
         </div>
-        <button onclick="changeView('home')" id="homeBtn" class="hidden text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl font-semibold transition-all duration-200">
-            🏠 กลับหน้าแรก
-        </button>
     </header>
 
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="flex-grow flex items-center justify-center p-6">
+    <!-- Main Content Container -->
+    <main class="flex-grow flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-8 w-full max-w-7xl mx-auto">
         
-        <!-- 1. WELCOME VIEW -->
-        <section id="view-home" class="text-center max-w-4xl w-full">
-            <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-2">ยินดีต้อนรับสู่ระบบเวลา</h2>
-            <p class="text-gray-500 md:text-lg mb-12">เลือกรูปแบบนาฬิกาที่ต้องการใช้งานด้านล่าง</p>
-            
-            <div class="grid md:grid-cols-2 gap-8">
-                <!-- Card 1: Normal Clock -->
-                <div onclick="changeView('clock')" class="group cursor-pointer bg-white border-2 border-gray-100 rounded-3xl p-8 shadow-xl shadow-gray-100 hover:border-red-600 hover:shadow-red-50 transition-all duration-300 transform hover:-translate-y-2">
-                    <div class="w-16 h-16 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-red-600 group-hover:text-white transition-colors duration-300">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <!-- ============================================== -->
+        <!-- VIEW 1: WELCOME SCREEN (หน้าต้อนรับ) -->
+        <!-- ============================================== -->
+        <section id="view-welcome" class="w-full max-w-4xl text-center fade-in space-y-8">
+            <div class="space-y-4">
+                <div class="inline-flex p-3 bg-red-50 text-sirindhorn-red rounded-3xl mb-2 animate-bounce">
+                    <i class="fa-solid fa-circle-check text-2xl"></i>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                    ระบบนาฬิกาและระบบจับเวลาอัจฉริยะ
+                </h1>
+                <p class="text-lg md:text-xl text-sirindhorn-greyMedium max-w-2xl mx-auto">
+                    ยินดีต้อนรับสู่ระบบควบคุมเวลาโรงเรียนสิรินธร จังหวัดสุรินทร์ <br>
+                    <span class="text-sm font-light text-slate-400">พัฒนาโดยทีมงานผู้เชี่ยวชาญด้าน UX/UI และ Full Stack</span>
+                </p>
+            </div>
+
+            <!-- Live mini clock preview on home screen -->
+            <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-xl max-w-md mx-auto transform hover:scale-[1.02] transition-transform duration-300">
+                <p class="text-xs font-semibold text-sirindhorn-red tracking-wider uppercase mb-1">ขณะนี้เวลา</p>
+                <h2 class="text-4xl font-bold text-slate-800 tracking-widest" id="welcome-live-clock">00:00:00</h2>
+                <p class="text-sm text-slate-500 mt-2" id="welcome-live-date">วัน... ที่ ... พ.ศ. ...</p>
+            </div>
+
+            <!-- Mode Selection Cards (Core Feature) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+                <!-- Mode 1: Digital Clock Card -->
+                <button onclick="switchView('clock')" class="group relative bg-white border border-slate-200/80 hover:border-sirindhorn-red rounded-3xl p-8 text-left shadow-md hover:shadow-2xl transition-all duration-300 glow-card flex flex-col justify-between h-64 overflow-hidden">
+                    <div class="absolute right-0 top-0 translate-x-4 -translate-y-4 w-32 h-32 bg-red-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"></div>
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 rounded-2xl bg-sirindhorn-red text-white flex items-center justify-center shadow-md mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-clock text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900 mb-2 group-hover:text-sirindhorn-red transition-colors">1. แสดงเวลาปกติ (Digital)</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">หน้าจอแสดงเวลาขนาดใหญ่ความเที่ยงตรงสูง พร้อมบอกคาบเรียนปัจจุบันและปฏิทินที่ครบถ้วน</p>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">แสดงเวลาปกติ</h3>
-                    <p class="text-gray-400 text-sm">นาฬิกาดิจิทัลขนาดใหญ่ บอกเวลามาตรฐานอย่างแม่นยำ</p>
+                    <div class="relative z-10 flex items-center text-sm font-semibold text-sirindhorn-red mt-4">
+                        เข้าใช้งานระบบนาฬิกา <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+                    </div>
+                </button>
+
+                <!-- Mode 2: Stopwatch/Counterwatch Card -->
+                <button onclick="switchView('timer')" class="group relative bg-white border border-slate-200/80 hover:border-slate-800 rounded-3xl p-8 text-left shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between h-64 overflow-hidden">
+                    <div class="absolute right-0 top-0 translate-x-4 -translate-y-4 w-32 h-32 bg-slate-100 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"></div>
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-md mb-6 group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-stopwatch text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-900 mb-2 group-hover:text-slate-700 transition-colors">2. ระบบการจับเวลา (Timer)</h3>
+                        <p class="text-slate-500 text-sm leading-relaxed">รวมสองระบบในหนึ่งเดียว ได้แก่จับเวลาเดินหน้า (Stopwatch) บันทึกรอบได้ และนับถอยหลังพร้อมแจ้งเตือน</p>
+                    </div>
+                    <div class="relative z-10 flex items-center text-sm font-semibold text-slate-900 mt-4">
+                        เข้าใช้งานระบบจับเวลา <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform"></i>
+                    </div>
+                </button>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 2: DIGITAL CLOCK SCREEN (โหมดแสดงเวลาปกติ) -->
+        <!-- ============================================== -->
+        <section id="view-clock" class="hidden w-full max-w-5xl fade-in space-y-6">
+            <!-- Nav breadcrumb & Back button -->
+            <div class="flex items-center justify-between">
+                <button onclick="switchView('welcome')" class="inline-flex items-center px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-2xl text-slate-700 text-sm font-medium transition-all shadow-sm">
+                    <i class="fa-solid fa-chevron-left mr-2"></i> กลับหน้าหลัก
+                </button>
+                <div class="text-sm font-medium text-sirindhorn-greyMedium">
+                    <span class="text-sirindhorn-red">●</span> หน้าจอดิจิทัลหลัก
+                </div>
+            </div>
+
+            <!-- Big Clock Dashboard -->
+            <div class="bg-white border border-slate-200/60 rounded-3xl shadow-xl overflow-hidden">
+                <!-- Top Status Header of School -->
+                <div class="bg-slate-900 text-white px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span class="text-sm font-medium tracking-wide text-slate-300">สถานะคาบเรียนจำลอง โรงเรียนสิรินธร</span>
+                    </div>
+                    <div class="text-xs md:text-sm text-slate-400 bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700" id="current-period-status">
+                        กำลังตรวจสอบตารางสอน...
+                    </div>
                 </div>
 
-                <!-- Card 2: Timer -->
-                <div onclick="changeView('timer')" class="group cursor-pointer bg-gray-900 border-2 border-gray-800 rounded-3xl p-8 shadow-xl shadow-gray-900/10 hover:border-red-600 hover:shadow-red-900/10 transition-all duration-300 transform hover:-translate-y-2">
-                    <div class="w-16 h-16 bg-gray-800 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-red-600 group-hover:text-white transition-colors duration-300">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <!-- Clock Visual Display Area -->
+                <div class="p-8 md:p-16 text-center space-y-6 flex flex-col items-center justify-center min-h-[350px]">
+                    <!-- Display Setting Controls -->
+                    <div class="flex items-center space-x-2 bg-slate-100 p-1 rounded-2xl text-xs font-semibold text-slate-600 mb-4">
+                        <button onclick="toggleEraFormat('BE')" id="btn-era-be" class="px-3 py-1.5 rounded-xl bg-white shadow-sm text-slate-800 transition-all">พุทธศักราช (พ.ศ.)</button>
+                        <button onclick="toggleEraFormat('AD')" id="btn-era-ad" class="px-3 py-1.5 rounded-xl hover:bg-white/50 transition-all">คริสต์ศักราช (ค.ศ.)</button>
                     </div>
-                    <h3 class="text-xl font-bold text-white mb-2">ระบบจับเวลา</h3>
-                    <p class="text-gray-500 text-sm">ตั้งเวลานับถอยหลังสำหรับกิจกรรมและการสอบต่างๆ</p>
+
+                    <!-- Live Date Display -->
+                    <div class="text-lg md:text-2xl font-bold text-sirindhorn-greyMedium tracking-wide" id="clock-display-date">
+                        วันศุกร์ที่ 12 มิถุนายน พ.ศ. 2569
+                    </div>
+
+                    <!-- Huge Time Text -->
+                    <div class="text-6xl sm:text-7xl md:text-9xl font-black text-slate-900 tracking-widest font-mono select-none my-4 glow-red flex items-center justify-center gap-1">
+                        <span id="clock-hour">00</span>
+                        <span class="animate-pulse text-sirindhorn-red">:</span>
+                        <span id="clock-min">00</span>
+                        <span class="animate-pulse text-sirindhorn-red">:</span>
+                        <span id="clock-sec" class="text-sirindhorn-red">00</span>
+                    </div>
+
+                    <!-- Precision Millisecond Visualiser -->
+                    <div class="text-sm md:text-base text-slate-400 font-mono tracking-widest bg-slate-100 px-4 py-1 rounded-full">
+                        มิลลิวินาที: <span id="clock-ms" class="font-bold text-slate-700">000</span>
+                    </div>
+                </div>
+
+                <!-- Footer schedule display -->
+                <div class="bg-slate-50 border-t border-slate-100 p-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div class="p-3 bg-white border border-slate-200/60 rounded-2xl">
+                        <span class="text-xs text-slate-400 block">คาบโฮมรูม</span>
+                        <span class="text-sm font-semibold text-slate-700">08:00 - 08:30 น.</span>
+                    </div>
+                    <div class="p-3 bg-white border border-slate-200/60 rounded-2xl">
+                        <span class="text-xs text-slate-400 block">คาบเรียนเช้า</span>
+                        <span class="text-sm font-semibold text-slate-700">08:30 - 12:00 น.</span>
+                    </div>
+                    <div class="p-3 bg-white border border-slate-200/60 rounded-2xl">
+                        <span class="text-xs text-slate-400 block">พักกลางวัน</span>
+                        <span class="text-sm font-semibold text-slate-700">12:00 - 13:00 น.</span>
+                    </div>
+                    <div class="p-3 bg-white border border-slate-200/60 rounded-2xl">
+                        <span class="text-xs text-slate-400 block">คาบเรียนบ่าย</span>
+                        <span class="text-sm font-semibold text-slate-700">13:00 - 16:00 น.</span>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- 2. DIGITAL CLOCK VIEW -->
-        <section id="view-clock" class="hidden text-center">
-            <div class="bg-white border border-gray-100 rounded-3xl p-12 md:p-20 shadow-2xl shadow-gray-200">
-                <p id="clock-date" class="text-red-600 font-bold tracking-widest text-lg md:text-xl mb-4">วันศุกร์ที่ 12 มิถุนายน 2569</p>
-                <h2 id="clock-time" class="text-7xl md:text-9xl font-black tracking-tight text-gray-900 font-mono">00:00:00</h2>
+        <!-- ============================================== -->
+        <!-- VIEW 3: TIMER / STOPWATCH / COUNTERWATCH SCREEN -->
+        <!-- ============================================== -->
+        <section id="view-timer" class="hidden w-full max-w-5xl fade-in space-y-6">
+            <!-- Nav Header -->
+            <div class="flex items-center justify-between">
+                <button onclick="switchView('welcome')" class="inline-flex items-center px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-2xl text-slate-700 text-sm font-medium transition-all shadow-sm">
+                    <i class="fa-solid fa-chevron-left mr-2"></i> กลับหน้าหลัก
+                </button>
+                <div class="text-sm font-medium text-slate-500">
+                    เครื่องมือจับเวลา / นับถอยหลัง
+                </div>
+            </div>
+
+            <!-- Double Tab Switch (Stopwatch vs Countdown) -->
+            <div class="flex bg-slate-200 p-1.5 rounded-3xl max-w-md mx-auto relative z-10">
+                <button id="tab-stopwatch" onclick="switchTimerTab('stopwatch')" class="flex-1 py-3 text-center rounded-2xl text-sm font-bold transition-all bg-white text-slate-900 shadow-sm">
+                    <i class="fa-solid fa-stopwatch mr-2 text-sirindhorn-red"></i> 1. จับเวลาเดินหน้า (Stopwatch)
+                </button>
+                <button id="tab-countdown" onclick="switchTimerTab('countdown')" class="flex-1 py-3 text-center rounded-2xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all">
+                    <i class="fa-solid fa-hourglass-half mr-2"></i> 2. นับถอยหลัง (Countdown)
+                </button>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- TAB CONTENT: STOPWATCH -->
+            <!-- ============================================== -->
+            <div id="content-stopwatch" class="fade-in space-y-6">
+                <div class="bg-white border border-slate-200/60 rounded-3xl p-8 md:p-12 shadow-xl text-center">
+                    <h2 class="text-lg font-bold text-slate-400 uppercase tracking-widest mb-2">จับเวลาเดินหน้า</h2>
+                    
+                    <!-- Stopwatch Numbers -->
+                    <div class="text-6xl sm:text-7xl md:text-8xl font-black text-slate-900 font-mono tracking-wider my-6 select-none" id="stopwatch-display">
+                        00:00:00<span class="text-2xl sm:text-4xl text-sirindhorn-red ml-1" id="stopwatch-ms">.00</span>
+                    </div>
+
+                    <!-- Stopwatch Control buttons -->
+                    <div class="flex flex-wrap items-center justify-center gap-4 mt-8">
+                        <!-- Reset Button -->
+                        <button onclick="resetStopwatch()" class="w-16 h-16 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all flex items-center justify-center border border-slate-200" title="เริ่มใหม่">
+                            <i class="fa-solid fa-rotate-left text-lg"></i>
+                        </button>
+                        
+                        <!-- Primary Start/Pause -->
+                        <button id="btn-stopwatch-toggle" onclick="toggleStopwatch()" class="px-8 py-4 rounded-3xl bg-sirindhorn-red hover:bg-sirindhorn-darkRed text-white font-bold text-lg transition-all shadow-lg shadow-red-500/30 flex items-center space-x-3">
+                            <i class="fa-solid fa-play" id="icon-stopwatch-toggle"></i>
+                            <span id="text-stopwatch-toggle">เริ่มจับเวลา</span>
+                        </button>
+
+                        <!-- Lap Button -->
+                        <button id="btn-stopwatch-lap" onclick="recordStopwatchLap()" class="w-16 h-16 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all flex items-center justify-center border border-slate-200 disabled:opacity-50" title="บันทึกรอบ">
+                            <i class="fa-solid fa-flag text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lap Records Section -->
+                <div class="bg-white border border-slate-200/60 rounded-3xl p-6 shadow-lg max-w-2xl mx-auto hidden" id="stopwatch-laps-box">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                        <h3 class="font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-list-ol mr-2 text-sirindhorn-red"></i> รายการบันทึกเวลาแต่ละรอบ
+                        </h3>
+                        <button onclick="clearStopwatchLaps()" class="text-xs text-slate-400 hover:text-sirindhorn-red transition-all font-semibold">
+                            ล้างทั้งหมด
+                        </button>
+                    </div>
+                    <div class="max-h-60 overflow-y-auto space-y-2 pr-2" id="stopwatch-laps-container">
+                        <!-- Generated Laps dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- TAB CONTENT: COUNTDOWN (COUNTERWATCH) -->
+            <!-- ============================================== -->
+            <div id="content-countdown" class="hidden fade-in space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left: Control & Set Time panel -->
+                    <div class="lg:col-span-5 bg-white border border-slate-200/60 rounded-3xl p-6 shadow-lg space-y-6 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center">
+                                <i class="fa-solid fa-sliders mr-2 text-sirindhorn-red"></i> ตั้งค่าเวลานับถอยหลัง
+                            </h3>
+                            
+                            <!-- Custom inputs -->
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div>
+                                    <label class="text-xs text-slate-400 font-semibold uppercase block mb-1">ชั่วโมง</label>
+                                    <input type="number" id="input-h" min="0" max="23" value="0" class="w-full bg-slate-50 border border-slate-200 focus:border-sirindhorn-red focus:ring-1 focus:ring-sirindhorn-red rounded-2xl p-3 text-center text-xl font-bold font-mono">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-slate-400 font-semibold uppercase block mb-1">นาที</label>
+                                    <input type="number" id="input-m" min="0" max="59" value="5" class="w-full bg-slate-50 border border-slate-200 focus:border-sirindhorn-red focus:ring-1 focus:ring-sirindhorn-red rounded-2xl p-3 text-center text-xl font-bold font-mono">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-slate-400 font-semibold uppercase block mb-1">วินาที</label>
+                                    <input type="number" id="input-s" min="0" max="59" value="0" class="w-full bg-slate-50 border border-slate-200 focus:border-sirindhorn-red focus:ring-1 focus:ring-sirindhorn-red rounded-2xl p-3 text-center text-xl font-bold font-mono">
+                                </div>
+                            </div>
+
+                            <!-- Fast Presets / Buttons for easy classroom use -->
+                            <div>
+                                <label class="text-xs text-slate-400 font-semibold uppercase block mb-2">ปุ่มลัดความเร็วสูงสุด</label>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                    <button onclick="applyPreset(1)" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all">1 นาที</button>
+                                    <button onclick="applyPreset(5)" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all">5 นาที</button>
+                                    <button onclick="applyPreset(10)" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all">10 นาที</button>
+                                    <button onclick="applyPreset(15)" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all">15 นาที</button>
+                                    <button onclick="applyPreset(30)" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all">30 นาที</button>
+                                    <button onclick="applyPreset(60)" class="py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all">1 ชั่วโมง</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sound options -->
+                        <div class="pt-4 border-t border-slate-100">
+                            <label class="text-xs text-slate-400 font-semibold uppercase block mb-2">เสียงเตือนหมดเวลา</label>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="testAlarmSound()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all flex items-center">
+                                    <i class="fa-solid fa-volume-high mr-1.5"></i> ทดสอบเสียงเตือน
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Large Timer Display with Progress Ring -->
+                    <div class="lg:col-span-7 bg-white border border-slate-200/60 rounded-3xl p-8 shadow-xl flex flex-col items-center justify-center text-center relative overflow-hidden min-h-[400px]">
+                        <!-- SVG Circular Progress Bar -->
+                        <div class="relative w-64 h-64 flex items-center justify-center">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                <!-- Background Circle -->
+                                <circle cx="50" cy="50" r="44" stroke="currentColor" stroke-width="4" fill="transparent" class="text-slate-100" />
+                                <!-- Foreground Circle (Red Progress) -->
+                                <circle cx="50" cy="50" r="44" stroke="currentColor" stroke-width="6" fill="transparent" 
+                                    class="text-sirindhorn-red transition-all duration-100" 
+                                    stroke-dasharray="276.46" 
+                                    stroke-dashoffset="0" 
+                                    id="countdown-progress-ring" />
+                            </svg>
+                            <!-- Inside Circular Text -->
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1" id="countdown-status-text">พร้อมใช้งาน</span>
+                                <span class="text-4xl md:text-5xl font-black text-slate-900 font-mono" id="countdown-display">00:05:00</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Control Panel -->
+                        <div class="flex items-center justify-center gap-4 mt-8 relative z-10 w-full">
+                            <!-- Reset Countdown -->
+                            <button onclick="resetCountdown()" class="w-14 h-14 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all flex items-center justify-center border border-slate-200" title="รีเซ็ต">
+                                <i class="fa-solid fa-rotate-left text-lg"></i>
+                            </button>
+
+                            <!-- Big Start/Pause Countdown Toggle -->
+                            <button id="btn-countdown-toggle" onclick="toggleCountdown()" class="px-8 py-4 rounded-3xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all shadow-lg shadow-slate-950/20 flex items-center space-x-3">
+                                <i class="fa-solid fa-play" id="icon-countdown-toggle"></i>
+                                <span id="text-countdown-toggle">เริ่มนับถอยหลัง</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- 3. TIMER VIEW -->
-        <section id="view-timer" class="hidden w-full max-w-2xl">
-            <div class="bg-white border border-gray-100 rounded-3xl p-8 md:p-12 shadow-2xl shadow-gray-200 text-center">
-                
-                <!-- Display -->
-                <div class="mb-8">
-                    <h2 id="timer-display" class="text-7xl md:text-9xl font-black text-gray-900 font-mono mb-4">05:00</h2>
-                    <p id="timer-status" class="text-sm font-semibold text-gray-400 tracking-wider uppercase">READY</p>
-                </div>
-
-                <!-- Config Phase -->
-                <div id="timer-config" class="space-y-6">
-                    <div class="flex justify-center gap-4">
-                        <button onclick="setTimerPreset(60)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-4 py-2 rounded-xl text-sm transition-all">+1 นาที</button>
-                        <button onclick="setTimerPreset(300)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-4 py-2 rounded-xl text-sm transition-all">+5 นาที</button>
-                        <button onclick="setTimerPreset(600)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold px-4 py-2 rounded-xl text-sm transition-all">+10 นาที</button>
-                    </div>
-                    <div class="flex items-center justify-center gap-2">
-                        <input type="number" id="input-minutes" min="0" max="180" value="5" class="w-20 text-center bg-gray-50 border border-gray-200 text-xl font-bold p-3 rounded-xl focus:outline-none focus:border-red-600">
-                        <span class="font-bold text-gray-500">นาที</span>
-                    </div>
-                </div>
-
-                <!-- Controls -->
-                <div class="flex justify-center gap-4 mt-8">
-                    <button onclick="toggleTimer()" id="btn-timer-start" class="bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg shadow-red-200 transition-all">เริ่มจับเวลา</button>
-                    <button onclick="resetTimer()" class="bg-gray-900 hover:bg-black text-white font-bold px-8 py-3 rounded-xl transition-all">รีเซ็ต</button>
-                </div>
-
+        <!-- Custom Notification Message Alert System (instead of default browser alerts) -->
+        <div id="toast-notification" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900 text-white border border-slate-800 px-6 py-4 rounded-3xl shadow-2xl flex items-center space-x-3 max-w-md w-full scale-0 opacity-0 transition-all duration-300 z-50">
+            <div class="w-10 h-10 rounded-full bg-sirindhorn-red flex items-center justify-center text-white shrink-0">
+                <i class="fa-solid fa-bell animate-swing text-base" id="toast-icon"></i>
             </div>
-        </section>
-
+            <div class="flex-grow">
+                <p class="text-sm font-bold" id="toast-title">แจ้งเตือนระบบ</p>
+                <p class="text-xs text-slate-400 mt-0.5" id="toast-message">ข้อความแจ้งเตือนรายละเอียด</p>
+            </div>
+            <button onclick="closeToast()" class="text-slate-400 hover:text-white p-1">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="text-center py-4 text-xs text-gray-400 border-t border-gray-100 bg-white">
-        &copy; 2026 Sirindhorn School. Designed by ครูติ๊ก Full Stack UX/UI Expert
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center transition-colors duration-300" id="nav-footer">
+        <p class="text-xs sm:text-sm text-sirindhorn-greyMedium">
+            &copy; 2026 ระบบควบคุมเวลากิจกรรมและตารางเรียน - โรงเรียนสิรินธร จังหวัดสุรินทร์
+        </p>
+        <p class="text-[10px] text-slate-400 mt-1">
+            ออกแบบโครงสร้างและพัฒนาระบบตามแนวคิดความเรียบง่ายสะดวกรวดเร็ว (Modern UX/UI Design)
+        </p>
     </footer>
 
-    <!-- LOGIC SCRIPT -->
+    <!-- Audio Web API Core Controller (Internal Synth Engine) -->
     <script>
-        // View Routing
-        function changeView(view) {
-            document.getElementById('view-home').classList.add('hidden');
-            document.getElementById('view-clock').classList.add('hidden');
-            document.getElementById('view-timer').classList.add('hidden');
-            document.getElementById('homeBtn').classList.add('hidden');
+        // Web Audio API Synth Alarm
+        let audioCtx = null;
+        
+        function playBeepSound(frequency = 880, duration = 0.15, type = 'sine') {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                // Check if context is suspended (browser autoplay policy)
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
 
-            if(view === 'home') {
-                document.getElementById('view-home').classList.remove('hidden');
-            } else if(view === 'clock') {
-                document.getElementById('view-clock').classList.remove('hidden');
-                document.getElementById('homeBtn').classList.remove('hidden');
-            } else if(view === 'timer') {
-                document.getElementById('view-timer').classList.remove('hidden');
-                document.getElementById('homeBtn').classList.remove('hidden');
-                resetTimer();
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+
+                // Ramp down to prevent pops and make it smooth
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+                osc.start(audioCtx.currentTime);
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (error) {
+                console.warn('Audio not supported or initialized: ', error);
             }
         }
 
-        // 1. Digital Clock Logic
-        function updateClock() {
+        // Test the customized alert sound
+        function testAlarmSound() {
+            showToast('ทดสอบระบบเสียง', 'กำลังส่งคลื่นเสียงอิเล็กทรอนิกส์แจ้งเตือนสำหรับการนับถอยหลัง');
+            playBeepSound(587.33, 0.2, 'square'); // D5 note
+            setTimeout(() => playBeepSound(659.25, 0.2, 'square'), 200); // E5 note
+            setTimeout(() => playBeepSound(880, 0.4, 'sine'), 400); // A5 note
+        }
+    </script>
+
+    <!-- Core Javascript Logic -->
+    <script>
+        // --- 1. Global View Navigation ---
+        let currentView = 'welcome';
+        
+        function switchView(viewName) {
+            // Stop timers if transitioning
+            currentView = viewName;
+
+            // Hide all views
+            document.getElementById('view-welcome').classList.add('hidden');
+            document.getElementById('view-clock').classList.add('hidden');
+            document.getElementById('view-timer').classList.add('hidden');
+
+            // Show selected view
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            
+            // Dispatch dynamic UI adjust triggers
+            if (viewName === 'clock') {
+                updateLiveClock(true); // Immediate update for responsive layout
+            }
+        }
+
+        // --- 2. Live Date & Time Engine ---
+        let eraFormat = 'BE'; // BE = Buddhist Era, AD = Christian Era
+        const THAI_DAYS = ['วันอาทิตย์', 'วันจันทร์', 'วันอังคาร', 'วันพุธ', 'วันพฤหัสบดี', 'วันศุกร์', 'วันเสาร์'];
+        const THAI_MONTHS_BE = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+        
+        function toggleEraFormat(era) {
+            eraFormat = era;
+            const btnBE = document.getElementById('btn-era-be');
+            const btnAD = document.getElementById('btn-era-ad');
+            
+            if (era === 'BE') {
+                btnBE.className = "px-3 py-1.5 rounded-xl bg-white shadow-sm text-slate-800 transition-all font-bold";
+                btnAD.className = "px-3 py-1.5 rounded-xl hover:bg-white/50 text-slate-500 transition-all font-medium";
+            } else {
+                btnAD.className = "px-3 py-1.5 rounded-xl bg-white shadow-sm text-slate-800 transition-all font-bold";
+                btnBE.className = "px-3 py-1.5 rounded-xl hover:bg-white/50 text-slate-500 transition-all font-medium";
+            }
+            updateLiveClock();
+        }
+
+        function updateLiveClock(immediate = false) {
             const now = new Date();
+            
+            // 1. Calculate time elements
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
+            const ms = String(now.getMilliseconds()).padStart(3, '0');
+
+            // Formatted clock text
+            const simpleTimeStr = `${hours}:${minutes}:${seconds}`;
+
+            // 2. DOM updates for clock elements
+            const liveHeaderTime = document.getElementById('header-live-time');
+            if (liveHeaderTime) liveHeaderTime.innerText = simpleTimeStr + ' น.';
+
+            const welcomeLiveClock = document.getElementById('welcome-live-clock');
+            if (welcomeLiveClock) welcomeLiveClock.innerText = simpleTimeStr;
+
+            // Clock page specific elements
+            if (currentView === 'clock' || immediate) {
+                document.getElementById('clock-hour').innerText = hours;
+                document.getElementById('clock-min').innerText = minutes;
+                document.getElementById('clock-sec').innerText = seconds;
+                document.getElementById('clock-ms').innerText = ms;
+            }
+
+            // 3. Date formulation based on selected Era
+            const dayOfWeek = THAI_DAYS[now.getDay()];
+            const dateNum = now.getDate();
+            const monthText = THAI_MONTHS_BE[now.getMonth()];
             
-            document.getElementById('clock-time').textContent = `${hours}:${minutes}:${seconds}`;
+            let yearVal = now.getFullYear();
+            let dateString = '';
             
-            // ปรับ Format วันที่ภาษาไทยเบื้องต้น
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('clock-date').textContent = now.toLocaleDateString('th-TH', options);
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // 2. Timer Logic
-        let timerInterval;
-        let timeLeft = 300; // 5 mins default
-        let isTimerRunning = false;
-
-        function updateTimerDisplay() {
-            const minutes = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-            const seconds = String(timeLeft % 60).padStart(2, '0');
-            const display = document.getElementById('timer-display');
-            display.textContent = `${minutes}:${seconds}`;
-
-            // UX: ถ้าเหลือน้อยกว่า 10 วิ ให้ตัวเลขเปลี่ยนเป็นสีแดงกระพริบ
-            if (timeLeft <= 10 && timeLeft > 0) {
-                display.className = "text-7xl md:text-9xl font-black text-red-600 font-mono mb-4 animate-pulse";
+            if (eraFormat === 'BE') {
+                yearVal += 543;
+                dateString = `${dayOfWeek}ที่ ${dateNum} ${monthText} พ.ศ. ${yearVal}`;
             } else {
-                display.className = "text-7xl md:text-9xl font-black text-gray-900 font-mono mb-4";
+                dateString = `${dayOfWeek}ที่ ${dateNum} ${monthText} ค.ศ. ${yearVal}`;
+            }
+
+            const clockDisplayDate = document.getElementById('clock-display-date');
+            if (clockDisplayDate) clockDisplayDate.innerText = dateString;
+
+            const welcomeLiveDate = document.getElementById('welcome-live-date');
+            if (welcomeLiveDate) welcomeLiveDate.innerText = dateString;
+
+            // 4. Sirindhorn School Simulated Academic Period Logic
+            updateSchoolPeriod(now);
+        }
+
+        // Mock period lookup to showcase real school value!
+        function updateSchoolPeriod(now) {
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const timeVal = hours * 60 + minutes; // Current minutes of the day
+
+            const periodStatusElement = document.getElementById('current-period-status');
+            if (!periodStatusElement) return;
+
+            // Simple time window comparisons
+            if (timeVal < 8 * 60) {
+                periodStatusElement.innerHTML = '⏱️ กิจกรรมหน้าเสาธงใกล้จะเริ่ม (ก่อน 08:00 น.)';
+            } else if (timeVal >= 8 * 60 && timeVal < 8 * 60 + 30) {
+                periodStatusElement.innerHTML = '📢 กิจกรรมโฮมรูมและสวดมนต์เช้า (08:00 - 08:30 น.)';
+            } else if (timeVal >= 8 * 60 + 30 && timeVal < 12 * 60) {
+                // Determine current slot
+                let slot = Math.floor((timeVal - (8*60+30)) / 50) + 1;
+                periodStatusElement.innerHTML = `📚 กำลังเรียนคาบที่ ${slot} (ช่วงเช้า)`;
+            } else if (timeVal >= 12 * 60 && timeVal < 13 * 60) {
+                periodStatusElement.innerHTML = '🍱 พักรับประทานอาหารกลางวัน (12:00 - 13:00 น.)';
+            } else if (timeVal >= 13 * 60 && timeVal < 16 * 60) {
+                let slot = Math.floor((timeVal - (13*60)) / 50) + 5;
+                periodStatusElement.innerHTML = `🔬 กำลังเรียนคาบที่ ${slot} (ช่วงบ่าย)`;
+            } else {
+                periodStatusElement.innerHTML = '🌅 สิ้นสุดคาบเรียนวันปกติ / กิจกรรมอิสระหลังเลิกเรียน';
             }
         }
 
-        function setTimerPreset(seconds) {
-            timeLeft = seconds;
-            document.getElementById('input-minutes').value = seconds / 60;
-            updateTimerDisplay();
+        // Keep live ticking running at extreme precision
+        setInterval(updateLiveClock, 10);
+
+
+        // --- 3. STOPWATCH ENGINE ---
+        let stopwatchTimer = null;
+        let stopwatchStartTime = 0;
+        let stopwatchElapsedTime = 0;
+        let stopwatchIsRunning = false;
+        let stopwatchLaps = [];
+
+        function toggleStopwatch() {
+            if (stopwatchIsRunning) {
+                // Pause action
+                clearInterval(stopwatchTimer);
+                stopwatchElapsedTime += Date.now() - stopwatchStartTime;
+                stopwatchIsRunning = false;
+                
+                // Update buttons
+                document.getElementById('icon-stopwatch-toggle').className = "fa-solid fa-play";
+                document.getElementById('text-stopwatch-toggle').innerText = "เริ่มจับเวลาต่อ";
+                document.getElementById('btn-stopwatch-lap').disabled = true;
+            } else {
+                // Play Action
+                stopwatchStartTime = Date.now();
+                stopwatchTimer = setInterval(updateStopwatchUI, 10);
+                stopwatchIsRunning = true;
+
+                // Update buttons
+                document.getElementById('icon-stopwatch-toggle').className = "fa-solid fa-pause";
+                document.getElementById('text-stopwatch-toggle').innerText = "พักการจับเวลา";
+                document.getElementById('btn-stopwatch-lap').disabled = false;
+            }
         }
 
-        function toggleTimer() {
-            const startBtn = document.getElementById('btn-timer-start');
-            const statusText = document.getElementById('timer-status');
-            const configArea = document.getElementById('timer-config');
-            const inputMins = parseInt(document.getElementById('input-minutes').value) || 0;
+        function updateStopwatchUI() {
+            const timePassed = stopwatchElapsedTime + (Date.now() - stopwatchStartTime);
+            
+            // Format time elements
+            const totalSec = Math.floor(timePassed / 1000);
+            const ms = Math.floor((timePassed % 1000) / 10); // Display double digit MS
+            
+            const hours = Math.floor(totalSec / 3600);
+            const mins = Math.floor((totalSec % 3600) / 60);
+            const secs = totalSec % 60;
 
-            if (!isTimerRunning) {
-                // Start
-                if (timeLeft === 300 || configArea.style.display !== 'none') {
-                    timeLeft = inputMins * 60;
+            const formattedTime = 
+                `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            
+            document.getElementById('stopwatch-display').innerHTML = 
+                `${formattedTime}<span class="text-2xl sm:text-4xl text-sirindhorn-red ml-1" id="stopwatch-ms">.${String(ms).padStart(2, '0')}</span>`;
+        }
+
+        function resetStopwatch() {
+            clearInterval(stopwatchTimer);
+            stopwatchElapsedTime = 0;
+            stopwatchIsRunning = false;
+            
+            document.getElementById('stopwatch-display').innerHTML = 
+                `00:00:00<span class="text-2xl sm:text-4xl text-sirindhorn-red ml-1" id="stopwatch-ms">.00</span>`;
+            
+            document.getElementById('icon-stopwatch-toggle').className = "fa-solid fa-play";
+            document.getElementById('text-stopwatch-toggle').innerText = "เริ่มจับเวลา";
+            document.getElementById('btn-stopwatch-lap').disabled = true;
+            
+            clearStopwatchLaps();
+        }
+
+        function recordStopwatchLap() {
+            if (!stopwatchIsRunning) return;
+            
+            const timePassed = stopwatchElapsedTime + (Date.now() - stopwatchStartTime);
+            const totalSec = Math.floor(timePassed / 1000);
+            const ms = Math.floor((timePassed % 1000) / 10);
+            const hours = Math.floor(totalSec / 3600);
+            const mins = Math.floor((totalSec % 3600) / 60);
+            const secs = totalSec % 60;
+
+            const formattedTime = 
+                `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}.${String(ms).padStart(2, '0')}`;
+
+            stopwatchLaps.unshift({
+                id: stopwatchLaps.length + 1,
+                time: formattedTime,
+                timestamp: new Date().toLocaleTimeString('th-TH')
+            });
+
+            renderLaps();
+        }
+
+        function renderLaps() {
+            const lapsBox = document.getElementById('stopwatch-laps-box');
+            const lapsContainer = document.getElementById('stopwatch-laps-container');
+            
+            if (stopwatchLaps.length === 0) {
+                lapsBox.classList.add('hidden');
+                return;
+            }
+
+            lapsBox.classList.remove('hidden');
+            lapsContainer.innerHTML = '';
+
+            stopwatchLaps.forEach((lap, index) => {
+                const lapEl = document.createElement('div');
+                lapEl.className = "flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100/80 transition-all";
+                lapEl.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">#${stopwatchLaps.length - index}</span>
+                        <span class="text-xs text-slate-400">บันทึกเมื่อ: ${lap.timestamp}</span>
+                    </div>
+                    <span class="font-mono font-bold text-slate-800 text-sm md:text-base">${lap.time}</span>
+                `;
+                lapsContainer.appendChild(lapEl);
+            });
+        }
+
+        function clearStopwatchLaps() {
+            stopwatchLaps = [];
+            renderLaps();
+        }
+
+
+        // --- 4. COUNTDOWN ENGINE ---
+        let countdownTimer = null;
+        let countdownTotalSeconds = 300; // Default 5 mins
+        let countdownRemainingSeconds = 300;
+        let countdownIsRunning = false;
+
+        function applyPreset(minutes) {
+            // Stop any running countdown first
+            if (countdownIsRunning) {
+                toggleCountdown();
+            }
+
+            countdownTotalSeconds = minutes * 60;
+            countdownRemainingSeconds = countdownTotalSeconds;
+            
+            // Set input values to reflect selection
+            document.getElementById('input-h').value = Math.floor(minutes / 60);
+            document.getElementById('input-m').value = minutes % 60;
+            document.getElementById('input-s').value = 0;
+
+            updateCountdownUI();
+            showToast('ปรับเวลาลัดสำเร็จ', `ตั้งเวลานับถอยหลังเป็น ${minutes} นาทีเรียบร้อยแล้ว`);
+        }
+
+        // Apply Custom Time from Inputs
+        function getCustomInputs() {
+            const h = parseInt(document.getElementById('input-h').value) || 0;
+            const m = parseInt(document.getElementById('input-m').value) || 0;
+            const s = parseInt(document.getElementById('input-s').value) || 0;
+
+            return (h * 3600) + (m * 60) + s;
+        }
+
+        function toggleCountdown() {
+            if (countdownIsRunning) {
+                // Pause Action
+                clearInterval(countdownTimer);
+                countdownIsRunning = false;
+
+                // UI buttons
+                document.getElementById('icon-countdown-toggle').className = "fa-solid fa-play";
+                document.getElementById('text-countdown-toggle').innerText = "เริ่มนับต่อ";
+                document.getElementById('countdown-status-text').innerText = "พักชั่วคราว";
+            } else {
+                // If not running, verify time
+                const inputTime = getCustomInputs();
+                if (inputTime <= 0) {
+                    showToast('โปรดระบุเวลา', 'กรุณากำหนดเวลาก่อนเริ่มต้นจับถอยหลังครับ');
+                    return;
                 }
-                if (timeLeft <= 0) return;
 
-                isTimerRunning = true;
-                startBtn.textContent = "หยุดชั่วคราว";
-                startBtn.className = "bg-amber-500 hover:bg-amber-600 text-white font-bold px-8 py-3 rounded-xl transition-all";
-                statusText.textContent = "COUNTDOWN";
-                configArea.classList.add('hidden');
+                // If starting fresh or time changed
+                if (countdownRemainingSeconds <= 0 || inputTime !== countdownTotalSeconds) {
+                    countdownTotalSeconds = inputTime;
+                    countdownRemainingSeconds = inputTime;
+                }
 
-                timerInterval = setInterval(() => {
-                    timeLeft--;
-                    updateTimerDisplay();
+                countdownTimer = setInterval(() => {
+                    countdownRemainingSeconds--;
+                    updateCountdownUI();
 
-                    if (timeLeft <= 0) {
-                        clearInterval(timerInterval);
-                        isTimerRunning = false;
-                        statusText.textContent = "TIME'S UP! 🎉";
-                        startBtn.textContent = "เริ่มจับเวลา";
-                        startBtn.className = "bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg shadow-red-200 transition-all";
-                        configArea.classList.remove('hidden');
+                    if (countdownRemainingSeconds <= 0) {
+                        triggerCountdownFinished();
                     }
                 }, 1000);
-            } else {
-                // Pause
-                clearInterval(timerInterval);
-                isTimerRunning = false;
-                startBtn.textContent = "ทำต่อ";
-                startBtn.className = "bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg shadow-red-200 transition-all";
-                statusText.textContent = "PAUSED";
+
+                countdownIsRunning = true;
+                
+                // UI buttons
+                document.getElementById('icon-countdown-toggle').className = "fa-solid fa-pause";
+                document.getElementById('text-countdown-toggle').innerText = "หยุดพักนับถอยหลัง";
+                document.getElementById('countdown-status-text').innerText = "กำลังดำเนินเวลา";
             }
         }
 
-        function resetTimer() {
-            clearInterval(timerInterval);
-            isTimerRunning = false;
-            const inputMins = parseInt(document.getElementById('input-minutes').value) || 5;
-            timeLeft = inputMins * 60;
-            updateTimerDisplay();
+        function updateCountdownUI() {
+            // Fallback safety
+            if (countdownRemainingSeconds < 0) countdownRemainingSeconds = 0;
+
+            const h = Math.floor(countdownRemainingSeconds / 3600);
+            const m = Math.floor((countdownRemainingSeconds % 3600) / 60);
+            const s = countdownRemainingSeconds % 60;
+
+            const countdownDisplayStr = 
+                `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
             
-            document.getElementById('btn-timer-start').textContent = "เริ่มจับเวลา";
-            document.getElementById('btn-timer-start').className = "bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg shadow-red-200 transition-all";
-            document.getElementById('timer-status').textContent = "READY";
-            document.getElementById('timer-config').classList.remove('hidden');
+            document.getElementById('countdown-display').innerText = countdownDisplayStr;
+
+            // SVG Circular Progress calculation
+            const progressRing = document.getElementById('countdown-progress-ring');
+            const totalCircumference = 2 * Math.PI * 44; // r = 44 inside SVG viewBox
+            
+            const percentage = countdownRemainingSeconds / countdownTotalSeconds;
+            const strokeDashoffset = totalCircumference * (1 - percentage);
+
+            progressRing.style.strokeDashoffset = isNaN(strokeDashoffset) ? 0 : strokeDashoffset;
+        }
+
+        function resetCountdown() {
+            if (countdownIsRunning) {
+                clearInterval(countdownTimer);
+                countdownIsRunning = false;
+            }
+
+            // Restore from inputs
+            const inputTime = getCustomInputs();
+            countdownTotalSeconds = inputTime > 0 ? inputTime : 300;
+            countdownRemainingSeconds = countdownTotalSeconds;
+
+            updateCountdownUI();
+
+            // Reset buttons UI
+            document.getElementById('icon-countdown-toggle').className = "fa-solid fa-play";
+            document.getElementById('text-countdown-toggle').innerText = "เริ่มนับถอยหลัง";
+            document.getElementById('countdown-status-text').innerText = "พร้อมใช้งาน";
+        }
+
+        function triggerCountdownFinished() {
+            clearInterval(countdownTimer);
+            countdownIsRunning = false;
+            countdownRemainingSeconds = 0;
+            updateCountdownUI();
+
+            // Set Visual to complete
+            document.getElementById('countdown-status-text').innerText = "หมดเวลา!";
+            document.getElementById('icon-countdown-toggle').className = "fa-solid fa-play";
+            document.getElementById('text-countdown-toggle').innerText = "เริ่มนับใหม่";
+
+            // Trigger synthesized beep sequences
+            let beeps = 0;
+            const beepInterval = setInterval(() => {
+                playBeepSound(1200, 0.3, 'square');
+                beeps++;
+                if (beeps >= 5) clearInterval(beepInterval);
+            }, 500);
+
+            showToast('หมดเวลานับถอยหลัง!', 'เวลากิจกรรมโรงเรียนสิรินธรเสร็จสิ้นสมบูรณ์!', true);
+        }
+
+
+        // --- 5. TIMER SUBTAB SWITCHER ---
+        function switchTimerTab(tabName) {
+            const btnStopwatch = document.getElementById('tab-stopwatch');
+            const btnCountdown = document.getElementById('tab-countdown');
+            const contentStopwatch = document.getElementById('content-stopwatch');
+            const contentCountdown = document.getElementById('content-countdown');
+
+            if (tabName === 'stopwatch') {
+                btnStopwatch.className = "flex-1 py-3 text-center rounded-2xl text-sm font-bold transition-all bg-white text-slate-900 shadow-sm";
+                btnCountdown.className = "flex-1 py-3 text-center rounded-2xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all";
+                contentStopwatch.classList.remove('hidden');
+                contentCountdown.classList.add('hidden');
+            } else {
+                btnCountdown.className = "flex-1 py-3 text-center rounded-2xl text-sm font-bold transition-all bg-white text-slate-900 shadow-sm";
+                btnStopwatch.className = "flex-1 py-3 text-center rounded-2xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all";
+                contentCountdown.classList.remove('hidden');
+                contentStopwatch.classList.add('hidden');
+                updateCountdownUI(); // Refresh SVG size calculation
+            }
+        }
+
+
+        // --- 6. DARK / LIGHT THEME CONTROL ---
+        let darkModeActive = false;
+        function toggleDarkMode() {
+            const body = document.getElementById('body-layout');
+            const header = document.getElementById('nav-header');
+            const footer = document.getElementById('nav-footer');
+            const themeIcon = document.getElementById('theme-icon');
+            const cards = document.querySelectorAll('.bg-white');
+            
+            darkModeActive = !darkModeActive;
+
+            if (darkModeActive) {
+                // Turn Dark Mode ON
+                body.classList.remove('bg-slate-50', 'text-slate-800');
+                body.classList.add('bg-slate-950', 'text-slate-100');
+                
+                header.classList.remove('bg-white', 'border-slate-200');
+                header.classList.add('bg-slate-900', 'border-slate-800');
+
+                footer.classList.remove('bg-white', 'border-slate-200');
+                footer.classList.add('bg-slate-900', 'border-slate-800');
+
+                themeIcon.className = "fa-solid fa-sun";
+
+                // Update cards dynamically
+                cards.forEach(card => {
+                    card.classList.remove('bg-white', 'border-slate-200/80', 'border-slate-200/60', 'border-slate-100');
+                    card.classList.add('bg-slate-900', 'border-slate-800');
+                });
+
+                // Update text colors for dark theme stability
+                document.querySelectorAll('.text-slate-900').forEach(el => {
+                    el.classList.remove('text-slate-900');
+                    el.classList.add('text-white');
+                });
+                document.querySelectorAll('.text-slate-800').forEach(el => {
+                    el.classList.remove('text-slate-800');
+                    el.classList.add('text-slate-200');
+                });
+
+                showToast('สลับเข้าสู่ Dark Mode', 'ลดแสงเพื่อรักษาสายตาในห้องเรียนและประหยัดพลังงาน');
+            } else {
+                // Turn Dark Mode OFF
+                body.classList.remove('bg-slate-950', 'text-slate-100');
+                body.classList.add('bg-slate-50', 'text-slate-800');
+
+                header.classList.remove('bg-slate-900', 'border-slate-800');
+                header.classList.add('bg-white', 'border-slate-200');
+
+                footer.classList.remove('bg-slate-900', 'border-slate-800');
+                footer.classList.add('bg-white', 'border-slate-200');
+
+                themeIcon.className = "fa-solid fa-moon";
+
+                // Reset Cards dynamically
+                cards.forEach(card => {
+                    card.classList.remove('bg-slate-900', 'border-slate-800');
+                    card.classList.add('bg-white', 'border-slate-200/80');
+                });
+
+                // Reset text colors
+                document.querySelectorAll('.text-white').forEach(el => {
+                    // Filter to prevent updating buttons or logos
+                    if (el.tagName !== 'BUTTON' && !el.closest('.bg-sirindhorn-red') && !el.closest('.bg-slate-900')) {
+                        el.classList.remove('text-white');
+                        el.classList.add('text-slate-900');
+                    }
+                });
+                document.querySelectorAll('.text-slate-200').forEach(el => {
+                    el.classList.remove('text-slate-200');
+                    el.classList.add('text-slate-800');
+                });
+
+                showToast('สลับเข้าสู่ Light Mode', 'หน้าจอสะอาดตาสำหรับการใช้งานในห้องเรียนเวลากลางวัน');
+            }
+        }
+
+
+        // --- 7. UX TOAST NOTIFICATIONS ---
+        let toastTimeout = null;
+        
+        function showToast(title, message, isUrgent = false) {
+            const toast = document.getElementById('toast-notification');
+            const toastIcon = document.getElementById('toast-icon');
+            const toastTitle = document.getElementById('toast-title');
+            const toastMessage = document.getElementById('toast-message');
+
+            // Handle visual severity
+            if (isUrgent) {
+                toast.classList.add('border-sirindhorn-red');
+                toastIcon.className = "fa-solid fa-triangle-exclamation text-amber-500 animate-bounce";
+            } else {
+                toast.classList.remove('border-sirindhorn-red');
+                toastIcon.className = "fa-solid fa-circle-info text-sky-400";
+            }
+
+            toastTitle.innerText = title;
+            toastMessage.innerText = message;
+
+            // Trigger Animation
+            toast.classList.remove('scale-0', 'opacity-0');
+            toast.classList.add('scale-100', 'opacity-100');
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+            
+            // Automatically close after 4 seconds
+            toastTimeout = setTimeout(closeToast, 4000);
+        }
+
+        function closeToast() {
+            const toast = document.getElementById('toast-notification');
+            toast.classList.remove('scale-100', 'opacity-100');
+            toast.classList.add('scale-0', 'opacity-0');
+        }
+
+        // Initialize state settings
+        window.onload = function() {
+            updateLiveClock(true);
+            updateCountdownUI();
         }
     </script>
 </body>
