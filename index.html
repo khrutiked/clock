@@ -81,22 +81,22 @@
         <div class="w-full text-center space-y-4">
             <!-- Central Display: Massive Neon Digital Clock (Stretched to Full Width) -->
             <div class="relative bg-black/60 border border-slate-800/80 rounded-[2.5rem] p-4 sm:p-12 lg:p-18 box-glow w-full mx-auto transition-all duration-500 backdrop-blur-xl">
-                            <!-- Date Display Card with Thai Buddhist Calendar -->
-            <div class="inline-flex items-center gap-3 px-8 py-3 bg-slate-900/60 border border-slate-800/60 rounded-full backdrop-blur-md shadow-sm">
-                <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
-                <div id="dateDisplay" class="text-sm sm:text-xl font-medium text-slate-200 tracking-wide">
-                    กำลังโหลดข้อมูลวันที่...
-                </div>
-            </div>
-                
-                
+
                 <!-- Glowing red line accents -->
                 <div class="absolute -top-px left-12 right-12 h-px bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
                 <div class="absolute -bottom-px left-12 right-12 h-px bg-gradient-to-r from-transparent via-red-950 to-transparent"></div>
-
+                    
+                <!-- Date Display Card with Thai Buddhist Calendar -->
+                <div class="inline-flex items-center gap-3 px-8 py-3 bg-slate-900/60 border border-slate-800/60 rounded-full backdrop-blur-md shadow-sm">
+                    <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
+                    <div id="dateDisplay" class="text-sm sm:text-xl font-medium text-slate-200 tracking-wide">
+                        กำลังโหลดข้อมูลวันที่...
+                    </div>
+                </div>
+                
                 <!-- Live Clock Engine Display (Fluid Font size based on Viewport Width) -->
                 <div class="flex flex-col items-center justify-center">
-                    <div id="clockDisplay" class="clock-font font-bold text-5xl sm:text-9xl md:text-10xl lg:text-11xl xl:text-[14vw] text-white tracking-widest leading-none select-none glow-red tabular-nums py-4">
+                    <div id="clockDisplay" class="clock-font font-bold text-4xl sm:text-9xl md:text-10xl lg:text-11xl xl:text-[14vw] text-white tracking-widest leading-none select-none glow-red tabular-nums py-4">
                         00:00:00
                     </div>
                 </div>
